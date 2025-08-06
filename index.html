@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Construto bioimpresso com esferoides mesenquimais</title>
+  <style>body { margin: 0; overflow: hidden; }</style>
+</head>
+<body>
+  <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://unpkg.com/three@0.155.0/examples/js/loaders/MTLLoader.js"></script>
+  <script src="https://unpkg.com/three@0.155.0/examples/js/loaders/OBJLoader.js"></script>
+  <script>
+    // Scene and camera setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    // Lighting
+    const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+    hemisphereLight.position.set(0, 50, 0);
+    scene.add(hemisphereLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(20, 50, 20);
+    scene.add(directionalLight);
+
+    // Load materials and object
+    const mtlLoader = new THREE.MTLLoader();
+    mtlLoader.load('mesenquimal_construct.mtl', (materials) => {
+      materials.preload();
+      const objLoader = new THREE.OBJLoader();
+      objLoader.setMaterials(materials);
+      objLoader.load('mesenquimal_construct.obj', (object) => {
+        // Scale down to centimeter scale (from mm): 0.1 factor
+        object.scale.set(0.1, 0.1, 0.1);
+        scene.add(object);
+      });
+    });
+
+    // Camera position
+    camera.position.set(50, 50, 50);
+    controls.update();
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Handle resizing
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
